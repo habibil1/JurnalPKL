@@ -95,7 +95,7 @@ export default function Home() {
 
       {/* Footer */}
       <footer className="border-t border-slate-200/70 py-6 text-center text-xs text-slate-500">
-        &copy; {new Date().getFullYear()} Aplikasi Jurnal PKL &bull; Ujian Kompetensi Web Developer
+        &copy; 2026 Aplikasi Jurnal PKL &bull; Ujian Kompetensi Web Developer
       </footer>
     </div>
   );

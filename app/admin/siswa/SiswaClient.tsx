@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition, useActionState, useEffect } from "react";
+import { useState, useTransition, useActionState } from "react";
 import Link from "next/link";
 import { tambahSiswaAction, hapusSiswaAction, SiswaActionResult } from "@/app/actions/siswa";
 import { logoutAdminAction } from "@/app/actions/auth";
@@ -30,14 +30,6 @@ export default function SiswaClient({ initialSiswaList }: SiswaClientProps) {
 
   const [isDeletePending, startDeleteTransition] = useTransition();
   const [feedback, setFeedback] = useState<{ type: "success" | "error"; text: string } | null>(null);
-
-  // Jika tambah siswa berhasil, tutup modal
-  useEffect(() => {
-    if (state?.success) {
-      setShowFormModal(false);
-      setFeedback({ type: "success", text: state.message || "Siswa berhasil ditambahkan!" });
-    }
-  }, [state]);
 
   const handleCopyCode = (kode: string) => {
     navigator.clipboard.writeText(kode);
@@ -122,15 +114,15 @@ export default function SiswaClient({ initialSiswaList }: SiswaClientProps) {
         </div>
 
         {/* Feedback Notifikasi */}
-        {feedback && (
+        {(feedback || state?.message) && (
           <div
             className={`p-4 rounded-xl text-sm font-medium flex items-center justify-between border ${
-              feedback.type === "success"
+              (state?.message ? state.success : feedback?.type === "success")
                 ? "bg-emerald-50 border-emerald-200 text-emerald-800"
                 : "bg-amber-50 border-amber-200 text-amber-800"
             }`}
           >
-            <span>{feedback.text}</span>
+            <span>{state?.message || feedback?.text}</span>
             <button
               onClick={() => setFeedback(null)}
               className="text-xs opacity-60 hover:opacity-100"
@@ -224,7 +216,7 @@ export default function SiswaClient({ initialSiswaList }: SiswaClientProps) {
       </main>
 
       {/* Modal Tambah Siswa */}
-      {showFormModal && (
+      {showFormModal && !state?.success && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
           <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 space-y-5">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
