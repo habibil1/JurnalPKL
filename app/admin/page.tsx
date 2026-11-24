@@ -17,17 +17,33 @@ export default async function AdminDashboardPage() {
 
   const siswaList: SiswaData[] = siswaData || [];
 
-  // 2. Ambil seluruh jurnal beserta relasi siswa
+  // 2. Ambil seluruh jurnal (tanpa embedding join PostgREST agar kebal dari keterbatasan schema cache)
   const { data: jurnalData, error: errJurnal } = await supabaseServer
     .from("jurnal")
-    .select("*, siswa:siswa_id(nama, kelas, tempat_pkl)")
+    .select("*")
     .order("tanggal", { ascending: false });
 
-  const jurnalList: JurnalWithSiswa[] = jurnalData || [];
-
   if (errSiswa || errJurnal) {
-    console.error("Kesalahan fetch admin:", errSiswa || errJurnal);
+    console.error("Kesalahan fetch admin:", errSiswa?.message || errJurnal?.message || errSiswa || errJurnal);
   }
+
+  // Pasangkan data siswa ke tiap jurnal secara in-memory di server
+  const siswaMap = new Map(siswaList.map((s) => [s.id, s]));
+
+  const rawJurnal = jurnalData || [];
+  const jurnalList: JurnalWithSiswa[] = rawJurnal.map((j) => {
+    const s = siswaMap.get(j.siswa_id);
+    return {
+      ...j,
+      siswa: s
+        ? {
+            nama: s.nama,
+            kelas: s.kelas,
+            tempat_pkl: s.tempat_pkl,
+          }
+        : undefined,
+    };
+  });
 
   // 3. Hitung rekap per siswa: jumlah jurnal, total jam, menunggu verifikasi
   const rekapList: RekapItem[] = siswaList.map((s) => {
