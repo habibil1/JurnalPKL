@@ -21,7 +21,10 @@ export default async function AdminKelolaSiswaPage() {
     .select("siswa_id");
 
   if (errSiswa || errJurnal) {
-    console.error("Kesalahan fetch kelola siswa:", errSiswa || errJurnal);
+    console.error(
+      "Kesalahan fetch kelola siswa:",
+      errSiswa?.message || errJurnal?.message || "Periksa konfigurasi Supabase dan pastikan skrip database.sql sudah dijalankan di SQL Editor Supabase."
+    );
   }
 
   const rawSiswa = siswaData || [];
